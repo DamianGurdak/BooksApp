@@ -11,7 +11,7 @@ const select = {
     image: '.book__image',
   },
   menuProduct: {
-    form: '.filters',
+    filters: '.filters',
   },
 };
 
@@ -45,7 +45,9 @@ class Book {
 
     thisBook.dom = {};
     thisBook.dom.image = thisBook.element.querySelector(select.book.image);
-    thisBook.dom.form = thisBook.element.querySelector(select.menuProduct.form);
+    // thisBook.dom.filters = document.querySelector(
+    //   select.menuProduct.filters
+    // );
   }
 
   renderInMenu() {
@@ -71,31 +73,34 @@ class Book {
 
     thisBook.dom.image.addEventListener('dblclick', function (event) {
       event.preventDefault();
-      thisBook.initFavoriteBooks(thisBook);
+      thisBook.initFavoriteBooks(thisBook.id);
     });
-
-    // thisBook.dom.form.addEventListener('event', function (event) {
-    //   event.preventDefault();
-    // });
-
-    // for(let checkbox of everyCheckbox) {
-    //   if(checkbox.tagName === 'INPUT' && checkbox.type === 'checkbox' && checkbox.name === 'filter') {
-    //     checkbox.value.innerHTML
-    //   };
-    // };
-  
   }
 
-  initFavoriteBooks(book) {
+  // toggleFavorite() {
+  //   const thisBook = this;
+
+  //   for (let checkbox of everyCheckbox) {
+  //     if (
+  //       checkbox.tagName === 'INPUT' &&
+  //       checkbox.type === 'checkbox' &&
+  //       checkbox.name === 'filter'
+  //     ) {
+  //       console.log();
+  //     }
+  //   }
+  // }
+
+  initFavoriteBooks(bookId) {
     // kiedy dajemy a kiedy nie dajemy argumnet w funkcji/metodzie
     const thisBook = this;
 
-    const index = favouriteBooks.indexOf(book); // argument book czym on jest skąd wiemy ze jest to pojeduncza ksiązak skoro nie ma tego zdefiniowanego
+    const index = favouriteBooks.indexOf(bookId); // argument book czym on jest skąd wiemy ze jest to pojeduncza ksiązak skoro nie ma tego zdefiniowanego
     //czy to book a app z funkcji init menu czy to tosamo?
     //w poradniku jesr argument w cudzysłwoie a tu nie ??
 
-    if (!favouriteBooks.includes(book)) {
-      favouriteBooks.push(book); //zapisać id książki w tablicy wiev book to nie book ale id to przeciez thisbook id // dlaczego book sie dodaje i usówa a book tylko dodaje?
+    if (!favouriteBooks.includes(bookId)) {
+      favouriteBooks.push(bookId); //zapisać id książki w tablicy wiev book to nie book ale id to przeciez thisbook id // dlaczego book sie dodaje i usówa a book tylko dodaje?
       thisBook.dom.image.classList.add('favorite'); // dodać klasę favorite
     } else if (index > -1) {
       favouriteBooks.splice(index, 1);
@@ -106,6 +111,11 @@ class Book {
 }
 
 const app = {
+  getElements: function () {
+    const thisApp = this;
+    thisApp.filters = document.querySelector(select.menuProduct.filters);
+  },
+
   initData: function () {
     const thisApp = this;
 
@@ -117,9 +127,29 @@ const app = {
     const thisApp = this;
     console.log(thisApp);
 
-    for (const book in thisApp.data.books) {
-      new Book(thisApp.data.books[book].id, thisApp.data.books[book]);
+    for (const book of thisApp.data.books) {
+      console.log(book);
+      new Book(book.id, book);
     }
+  },
+
+  initActions: function () {
+    // to jesr funckja callback?
+    const thisApp = this;
+
+    thisApp.filters.addEventListener('click', function (event) {
+      event.preventDefault();
+      // thisBook.toggleFavorite();
+      const checkbox = event.target;
+      if (
+        checkbox.tagName === 'INPUT' &&
+        checkbox.type === 'checkbox' &&
+        checkbox.name === 'filter'
+      ) {
+        console.log(checkbox.value);
+
+      }
+    });
   },
 
   init: function () {
@@ -127,6 +157,8 @@ const app = {
 
     thisApp.initData();
     thisApp.initMenu();
+    thisApp.getElements();
+    thisApp.initActions();
   },
 };
 
