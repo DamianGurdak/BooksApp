@@ -25,28 +25,29 @@ const templates = {
 
 const backgroundColor = {
   colors: {
-    colorOne: 'background: linear-gradient(to bottom,  #fefcea 0%, #f1da36 100%);', // Rating < 6
-    colorTwo: 'background: linear-gradient(to bottom, #b4df5b 0%,#b4df5b 100%);', // Rating > 6 && <= 8
-    colorThree: 'background: linear-gradient(to bottom, #299a0b 0%, #299a0b 100%);', // Rating > 8 && <= 9
-    colorFour: 'background: linear-gradient(to bottom, #ff0084 0%,#ff0084 100%);', // Rating > 9
+    colorOne:
+      'background: linear-gradient(to bottom,  #fefcea 0%, #f1da36 100%);', // Rating < 6
+    colorTwo:
+      'background: linear-gradient(to bottom, #b4df5b 0%,#b4df5b 100%);', // Rating > 6 && <= 8
+    colorThree:
+      'background: linear-gradient(to bottom, #299a0b 0%, #299a0b 100%);', // Rating > 8 && <= 9
+    colorFour:
+      'background: linear-gradient(to bottom, #ff0084 0%,#ff0084 100%);', // Rating > 9
   },
-
 };
 
 const favouriteBooks = [];
 const filters = [];
 
 class Book {
-  constructor(id, data) {
-    // skąd te argumnty
+  constructor() {
     const thisBook = this;
     console.log('thisBook:', thisBook);
 
-    thisBook.id = id;
-    thisBook.data = data;
+    thisBook.data = dataSource;
     thisBook.renderInMenu();
-    thisBook.getElements(); // getElement moze być pierwsze wywołane? nie bo bierze elementy z render menu
-    thisBook.initActions(); // ma być uruchamiana po funkcji render
+    thisBook.getElements();
+    thisBook.initActions(); 
   }
 
   getElements() {
@@ -54,24 +55,32 @@ class Book {
 
     thisBook.dom = {};
     thisBook.dom.image = thisBook.element.querySelector(select.book.image);
+    thisApp.filters = document.querySelector(select.menuProduct.filters); // z app
+    //lista ksiazek
+    thisBook.dom.bookList = thisBook.element.querySelector(select.containerOf.menu);
   }
 
   renderInMenu() {
     const thisBook = this;
     console.log('newBook:', thisBook);
 
-    //wygenerowanie kodu HTML na podstawie szablonu oraz danych o konkretnej książce. // data to konkretna ksiązka?
-    const generatedHtml = templates.menuProduct(thisBook.data);
-    // console.log(generatedHtml);
-
-    //Na postawie tego kodu HTML wygeneruj element DOM
-    thisBook.element = utils.createDOMFromHTML(generatedHtml);
-    console.log(thisBook.element);
-
-    //Wygenerowany element DOM dołącz jako nowe dziecko DOM do listy .books-list.
     const menuContainer = document.querySelector(select.containerOf.menu);
     console.log(menuContainer);
-    menuContainer.appendChild(thisBook.element);
+
+    for (const book of thisBook.data.books) {
+      //wygenerowanie kodu HTML na podstawie szablonu oraz danych o konkretnej książce. // data to konkretna ksiązka?
+      const generatedHtml = templates.menuProduct(book);
+      // console.log(generatedHtml);
+      console.log(thisBook.data);
+
+      //Na postawie tego kodu HTML wygeneruj element DOM
+      const element = utils.createDOMFromHTML(generatedHtml);
+      // console.log(element);
+
+      //Wygenerowany element DOM dołącz jako nowe dziecko DOM do listy .books-list.
+      menuContainer.appendChild(element);
+      console.log(book);
+    }
   }
 
   initActions() {
@@ -81,6 +90,8 @@ class Book {
       event.preventDefault();
       thisBook.initFavoriteBooks(thisBook.id);
     });
+    //petla po obrazkah w wraperze
+    // for() {};
   }
 
   initFavoriteBooks(bookId) {
@@ -102,100 +113,77 @@ class Book {
   }
 
   determineRatingBgc(rating) {
-    if(rating < 6) {
-     
-    };
-  };
-
+    if (rating < 6) {
+    }
+  }
 }
 
-const app = {
-  getElements: function () {
-    const thisApp = this;
-    thisApp.filters = document.querySelector(select.menuProduct.filters);
-  },
+const app = new Book();
+////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// const app = {
+ 
 
-  initData: function () {
-    const thisApp = this;
+// initActions: function () {
 
-    thisApp.data = dataSource;
-    console.log('data: ', thisApp.data);
-  },
+//     const thisApp = this;
 
-  initMenu: function () {
-    const thisApp = this;
-    console.log(thisApp);
+//     thisApp.filters.addEventListener('click', function (event) {
+//       event.preventDefault();
+//       // thisBook.toggleFavorite();
+//       const checkbox = event.target;
+//       if (
+//         checkbox.tagName === 'INPUT' &&
+//         checkbox.type === 'checkbox' &&
+//         checkbox.name === 'filter'
+//       ) {
+//         console.log(checkbox.value);
+//       }
 
-    for (const book of thisApp.data.books) {
-      console.log(book);
-      new Book(book.id, book);
+//       const indexOf = thisApp.filters.indexOf(checkbox.value);
 
-      const ratingBgc = 
-    }
-  },
+//       if (checkbox === -1) {
+//         thisApp.filters.push(checkbox.value);
+//         thisApp.filterBooks();
+//         console.log(thisApp.filters);
+//       } else {
+//         thisApp.filters.splice(indexOf, 1);
+//         thisApp.filterBooks();
+//         console.log(thisApp.filters);
+//       }
+//     });
+//   },
 
-  initActions: function () {
-    // to jesr funckja callback?
-    const thisApp = this;
+//   // filterBooks: function () {
+//   //   const thisApp = this;
 
-    thisApp.filters.addEventListener('click', function (event) {
-      event.preventDefault();
-      // thisBook.toggleFavorite();
-      const checkbox = event.target;
-      if (
-        checkbox.tagName === 'INPUT' &&
-        checkbox.type === 'checkbox' &&
-        checkbox.name === 'filter'
-      ) {
-        console.log(checkbox.value);
-      }
+//   //   for (let book of dataSource.books) {
 
-      const indexOf = thisApp.filters.indexOf(checkbox.value);
+//   //     let shouldBeHidden = false;
 
-      if (checkbox === -1) {
-        thisApp.filters.push(checkbox.value);
-        thisApp.filterBooks();
-        console.log(thisApp.filters);
-      } else {
-        thisApp.filters.splice(indexOf, 1);
-        thisApp.filterBooks();
-        console.log(thisApp.filters);
-      }
-    });
-  },
+//   //     for(const filter of filters) {
+//   //       if(!book.details[filter]) {
+//   //         shouldBeHidden = true;
+//   //         break;
+//   //       };
 
-  // filterBooks: function () {
-  //   const thisApp = this;
+//   //         if(shouldBeHidden === true) {
 
-    
+//   //         };
 
-  //   for (let book of dataSource.books) {
+//   //     };
+//   //   }
+//   // },
 
-  //     let shouldBeHidden = false;
+//   init: function () {
+//     const thisApp = this;
 
+//     thisApp.initData();
+//     thisApp.initMenu();
+//     thisApp.getElements();
+//     thisApp.initActions();
+//   },
+// };
 
-  //     for(const filter of filters) {
-  //       if(!book.details[filter]) {
-  //         shouldBeHidden = true;
-  //         break;
-  //       };
-
-  //         if(shouldBeHidden === true) {
-
-  //         };
-        
-  //     };
-  //   }
-  // },
-
-  init: function () {
-    const thisApp = this;
-
-    thisApp.initData();
-    thisApp.initMenu();
-    thisApp.getElements();
-    thisApp.initActions();
-  },
-};
-
-app.init();
+// app.init();
