@@ -29,7 +29,7 @@ const backgroundColor = {
   },
 };
 
-const favoriteBooks = []; //tablica z identyfikatorami książek, które dodano do ulubionych
+// const favoriteBooks = []; //tablica z identyfikatorami książek, które dodano do ulubionych
 // const filters = [];
 
 class BookList {
@@ -41,6 +41,8 @@ class BookList {
     thisBookList.renderBooks();
     thisBookList.getElements();
     thisBookList.initActions();
+
+    thisBookList.favoriteBooks = [];
   }
 
   initData() {
@@ -59,6 +61,15 @@ class BookList {
 
     thisBookList.dom = {};
 
+    thisBookList.element = document.querySelector(
+      select.containerOf.booksPanel
+    );
+
+    // referencję do listy wszystkich elementów .book__image w liście .booksList
+    thisBookList.dom.coverImage = thisBookList.element.querySelector(
+      select.templateOf.coverImage
+    );
+
     // thisBookList.dom.image = thisBookList.element.querySelector(
     //   select.book.image
     // );
@@ -71,8 +82,8 @@ class BookList {
     const thisBookList = this;
     // console.log('newBook:', thisBookList);
 
-    //referencja do listy .book-list
-    const BookList = document.querySelector(select.containerOf.booksPanel);
+    //referencja do listy .book-list a raczej do pojedynczego ul
+    // const BookList = document.querySelector(select.containerOf.booksPanel);
     // console.log(BookList);
 
     //referrencja do szablonu
@@ -93,8 +104,12 @@ class BookList {
       const element = utils.createDOMFromHTML(generatedHtml);
       // console.log(element); //li pojednynczych ksiązek ale aktywne linki
 
+      const booksContainter = document.querySelector(
+        select.containerOf.booksPanel
+      );
+
       //Wygenerowany element DOM dołącz jako nowe dziecko DOM do listy .books-list.
-      BookList.appendChild(element);
+      booksContainter.appendChild(element);
       // console.log(book);
     }
 
@@ -105,23 +120,28 @@ class BookList {
   initActions() {
     const thisBookList = this;
 
-    // referencję do listy wszystkich elementów .book__image w liście .booksList
-    thisBookList.dom.CoverImage = thisBookList.element.querySelector(
-      select.templateOf.coverImage
-    );
+    thisBookList.element.addEventListener('dblclick', function (event) {
+      event.preventDefault(); //zatrzyma domyślne zachowanie przeglądarki
+      const eventParent = event.target.offsetParent;
 
-    for (const book of BookList) {
-      thisBookList.dom.CoverImage.addEventListener(
-        'dbclcick',
-        function (event) {
-          event.preventDefault(); //zatrzyma domyślne zachowanie przeglądarki
-          thisBookList.dom.CoverImage.classList.add('favorite');
-          const bookId = thisBookList.dom.CoverImage.getElementById('data-id');
-          // console('bokkId: ', bookId);
-          favoriteBooks.push(bookId); //zapisuje  id książki w tablicy
+      console.log(eventParent);
+
+      if (eventParent.classList.contains('book__image')) {
+        eventParent.classList.toggle('favorite');
+        const bookId = eventParent.getAttribute('data-id');
+        // console.log('bookId: ', bookId);
+
+        if (thisBookList.favoriteBooks.constains(bookId)) {
+          thisBookList.favoriteBooks.remove(bookId); //zapisuje  id książki w tablicy
+          console.log(
+            'tablica polubionych książek',
+            thisBookList.favoriteBooks
+          );
+        } else {
+          thisBookList.favoriteBooks.push(bookId);
         }
-      );
-    }
+      }
+    });
   }
 
   // filerBooks() {}
