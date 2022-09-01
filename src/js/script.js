@@ -8,11 +8,11 @@ const select = {
   containerOf: {
     booksPanel: '.books-list',
   },
-  // book: {
-  //   image: '.book__image',
-  // },
-  menuProduct: {
-    filters: '.filters',
+  book: {
+    image: '.book__image',
+  },
+  filters: {
+    form: '.filters',
   },
 };
 
@@ -29,20 +29,18 @@ const backgroundColor = {
   },
 };
 
-// const favoriteBooks = []; //tablica z identyfikatorami książek, które dodano do ulubionych
-// const filters = [];
-
 class BookList {
   constructor() {
     const thisBookList = this;
     // console.log('thisBookListList:', thisBookList);
 
-    thisBookList.data = dataSource; // jak to działa
+    thisBookList.initData();
     thisBookList.renderBooks();
     thisBookList.getElements();
     thisBookList.initActions();
 
-    thisBookList.favoriteBooks = [];
+    thisBookList.favoriteBooks = []; //tablica z identyfikatorami książek, które dodano do ulubionych
+    thisBookList.filteres = []; //będziemy przechowywać informacje, jakie aktualnie filtry są wybrane w aplikacji
   }
 
   initData() {
@@ -53,7 +51,7 @@ class BookList {
     thisData.data = dataSource.books;
     */
 
-    this.data = dataSource.books;
+    this.data = dataSource;
   }
 
   getElements() {
@@ -70,12 +68,11 @@ class BookList {
       select.templateOf.coverImage
     );
 
-    // thisBookList.dom.image = thisBookList.element.querySelector(
-    //   select.book.image
-    // );
+    thisBookList.dom.form = document.querySelector(select.filters.form);
 
-    // thisApp.filters = document.querySelector(select.menuProduct.filters); // z app
-    // // lista ksiazek
+    thisBookList.dom.image = thisBookList.element.querySelector(
+      select.book.image
+    );
   }
 
   renderBooks() {
@@ -129,22 +126,69 @@ class BookList {
       if (eventParent.classList.contains('book__image')) {
         eventParent.classList.toggle('favorite');
         const bookId = eventParent.getAttribute('data-id');
-        // console.log('bookId: ', bookId);
+        console.log('bookId: ', bookId);
 
-        if (thisBookList.favoriteBooks.constains(bookId)) {
-          thisBookList.favoriteBooks.remove(bookId); //zapisuje  id książki w tablicy
-          console.log(
-            'tablica polubionych książek',
-            thisBookList.favoriteBooks
-          );
+        if (thisBookList.favoriteBooks.includes(bookId)) {
+          thisBookList.favoriteBooks.splice(bookId); //zapisuje  id książki w tablicy
         } else {
           thisBookList.favoriteBooks.push(bookId);
         }
+
+        console.log('tablica polubionych książek', thisBookList.favoriteBooks);
       }
+    });
+
+    thisBookList.dom.form.addEventListener('click', function (event) {
+      // event.preventDefault();
+
+      const checkbox = event.target;
+      // console.log(event.target);
+      // const checkboxes = thisBookList.dom.form.querySelectorAll('input');
+      // for (const checkbox of checkboxes) {
+      if (
+        checkbox.tagName === 'INPUT' &&
+        checkbox.type === 'checkbox' &&
+        checkbox.name === 'filter'
+      ) {
+        console.log('formCheckbox.value:', checkbox.value);
+      }
+      console.log(checkbox.value);
+      if (checkbox.checked) {
+        thisBookList.filteres.push(checkbox.value);
+        console.log('thisBookList.filteres:', thisBookList.filteres);
+        // thisBookList.filerBooks(); //wywoływana każdorazowo przy zmianie checkboxa w formularzu.
+      } else {
+        const indexOfDeleted = thisBookList.filteres.indexOf(checkbox.value);
+        thisBookList.filteres.splice(indexOfDeleted, 1);
+        console.log('thisBookList.filteres:', thisBookList.filteres);
+        // thisBookList.filerBooks(); //wywoływana każdorazowo przy zmianie checkboxa w formularzu.
+      }
+
+      // }
     });
   }
 
-  // filerBooks() {}
+  filerBooks() {
+    const thisBookList = this;
+
+    let shouldBeHidden = false; //on ma byc w petli? raczej nie
+
+    for (const book of dataSource.books) {
+      for (const filter of thisBookList.filteres) {
+        if (!filter == details.filter) {
+          shouldBeHidden = true;
+          break;
+        }
+      }
+
+      if (shouldBeHidden === true) {
+        // jaki jest bład? ma byc string?
+        thisBookList.dom.image.classList.add('hidden');
+      } else {
+        thisBookList.dom.image.classList.remove('hidden');
+      }
+    }
+  }
 
   // determineRatingBgc(rating) {
   //   if (rating < 6) {
