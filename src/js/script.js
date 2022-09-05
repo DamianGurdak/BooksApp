@@ -44,13 +44,6 @@ class BookList {
   }
 
   initData() {
-    /*
-    // dlaczego tutaj tak nie mozebyć
-
-    const thisData = this
-    thisData.data = dataSource.books;
-    */
-
     this.data = dataSource;
   }
 
@@ -69,10 +62,6 @@ class BookList {
     );
 
     thisBookList.dom.form = document.querySelector(select.filters.form);
-
-    thisBookList.dom.image = thisBookList.element.querySelector(
-      select.book.image
-    );
   }
 
   renderBooks() {
@@ -105,6 +94,8 @@ class BookList {
         select.containerOf.booksPanel
       );
 
+      // const ratingBgc = determineRatingBgc(data.rating);
+
       //Wygenerowany element DOM dołącz jako nowe dziecko DOM do listy .books-list.
       booksContainter.appendChild(element);
       // console.log(book);
@@ -129,7 +120,8 @@ class BookList {
         console.log('bookId: ', bookId);
 
         if (thisBookList.favoriteBooks.includes(bookId)) {
-          thisBookList.favoriteBooks.splice(bookId); //zapisuje  id książki w tablicy
+          const indexOfDeletedBook = thisBookList.favoriteBooks.indexOf(bookId);
+          thisBookList.favoriteBooks.splice(indexOfDeletedBook, 1); //zapisuje  id książki w tablicy
         } else {
           thisBookList.favoriteBooks.push(bookId);
         }
@@ -156,12 +148,12 @@ class BookList {
       if (checkbox.checked) {
         thisBookList.filteres.push(checkbox.value);
         console.log('thisBookList.filteres:', thisBookList.filteres);
-        // thisBookList.filerBooks(); //wywoływana każdorazowo przy zmianie checkboxa w formularzu.
+        thisBookList.filerBooks(); //wywoływana każdorazowo przy zmianie checkboxa w formularzu.
       } else {
         const indexOfDeleted = thisBookList.filteres.indexOf(checkbox.value);
         thisBookList.filteres.splice(indexOfDeleted, 1);
         console.log('thisBookList.filteres:', thisBookList.filteres);
-        // thisBookList.filerBooks(); //wywoływana każdorazowo przy zmianie checkboxa w formularzu.
+        thisBookList.filerBooks(); //wywoływana każdorazowo przy zmianie checkboxa w formularzu.
       }
 
       // }
@@ -171,29 +163,42 @@ class BookList {
   filerBooks() {
     const thisBookList = this;
 
-    let shouldBeHidden = false; //on ma byc w petli? raczej nie
-
     for (const book of dataSource.books) {
+      let shouldBeHidden = false;
       for (const filter of thisBookList.filteres) {
-        if (!filter == details.filter) {
+        // console.log('filter: ', filter);
+        if (!book.details[filter]) {
           shouldBeHidden = true;
           break;
         }
       }
 
+      const bookImage = thisBookList.element.querySelector(
+        '[data-id="' + book.id + '"]'
+      );
+      console.log(book.name, thisBookList.dom.image);
+
       if (shouldBeHidden === true) {
-        // jaki jest bład? ma byc string?
-        thisBookList.dom.image.classList.add('hidden');
+        bookImage.classList.add('hidden');
       } else {
-        thisBookList.dom.image.classList.remove('hidden');
+        bookImage.classList.remove('hidden');
       }
     }
   }
 
-  // determineRatingBgc(rating) {
-  //   if (rating < 6) {
-  //   }
-  // }
+  determineRatingBgc(rating) {
+    if (rating < 6) {
+      backgroundColor.colors.colorOne;
+    } else if (rating > 6 && rating <= 8) {
+      backgroundColor.colors.colorTwo;
+    } else if (rating > 8 && rating <= 9) {
+      backgroundColor.colors.colorThree;
+    } else if (rating > 9) {
+      backgroundColor.colors.colorFour;
+    }
+
+    return ratingBgc;
+  }
 }
 
 const app = new BookList(); // instncja klasy
